@@ -1,0 +1,4 @@
+# Ignore Power BI files and Excel outputs
+*.pbix
+*.xlsx
+__pycache__/
