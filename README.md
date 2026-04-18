@@ -1,4 +1,4 @@
-# 📊 Power BI Governance Audit Tool
+# Power BI Governance Audit Tool
 
 A lightweight, automated web application built with Streamlit that audits Power BI dashboards (`.pbix` files) against standard governance and UI/UX design checklists. 
 
@@ -6,7 +6,7 @@ A lightweight, automated web application built with Streamlit that audits Power 
 
 ---
 
-## 🎯 What It Does
+## What It Does
 Manually opening and reviewing dozens of Power BI pages for compliance is incredibly time-consuming. This tool automates the process by analyzing the underlying JSON configuration of `.pbix` files to check for structural consistency without requiring Power BI Desktop to be installed.
 
 Currently, the engine audits every page for:
@@ -17,7 +17,7 @@ Currently, the engine audits every page for:
 
 ---
 
-## ⚙️ How It Works (Under the Hood)
+## How It Works (Under the Hood)
 The tool utilizes a "Zip Hack" to process files securely and rapidly:
 1.  **In-Memory Unzipping:** A `.pbix` file is essentially a renamed `.zip` archive. The script unzips the uploaded file directly in server memory.
 2.  **JSON Parsing:** It locates and reads the hidden `Report/Layout` file, which is encoded in `utf-16-le`.
@@ -28,7 +28,7 @@ The tool utilizes a "Zip Hack" to process files securely and rapidly:
 
 ---
 
-## 🚀 How to Use the Web App
+## How to Use the Web App
 1. Navigate to the **[Live App](https://governance-tool-nauez4jeschpdl6fhbkrsm.streamlit.app/)**.
 2. Drag and drop one or multiple `.pbix` files into the uploader.
 3. Click **Run Audit**.
@@ -37,7 +37,7 @@ The tool utilizes a "Zip Hack" to process files securely and rapidly:
 
 ---
 
-## 💻 Local Setup & Installation
+## Local Setup & Installation
 
 If you wish to clone this repository and run the tool locally on your own machine:
 
