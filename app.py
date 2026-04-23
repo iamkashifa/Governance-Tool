@@ -6,7 +6,7 @@ import pandas as pd
 from io import BytesIO
 
 # ==========================================
-# DYNAMIC RULE ENGINE: TEMPLATE GENERATOR
+# 🧠 DYNAMIC RULE ENGINE: TEMPLATE GENERATOR
 # ==========================================
 def create_template():
     # This creates the new "Database Table" style template
@@ -24,18 +24,18 @@ def create_template():
     return output.getvalue()
 
 # ==========================================
-# UI: PAGE CONFIG & HERO SECTION
+# 🎨 UI: PAGE CONFIG & HERO SECTION
 # ==========================================
-st.set_page_config(page_title="PBI Governance Engine", layout="wide")
+st.set_page_config(page_title="PBI Governance Engine", page_icon="⚙️", layout="wide")
 
-st.title("Dynamic Power BI Rule Engine")
+st.title("⚙️ Dynamic Power BI Rule Engine")
 st.markdown("Upload your custom rules matrix and your `.pbix` files. The engine will dynamically adapt to whatever rules you set.")
 st.divider()
 
 # ==========================================
-# DOCUMENTATION (COLLAPSIBLE SECTIONS)
+# 📚 DOCUMENTATION (COLLAPSIBLE SECTIONS)
 # ==========================================
-st.markdown("### Project Documentation")
+st.markdown("### 📚 Project Documentation")
 
 with st.expander("**Overview**", expanded=False):
     st.markdown("""
@@ -83,10 +83,10 @@ with st.expander("**Sample Results of the Existing Checklist**", expanded=False)
     * **Slicer Alignment:** Flags scattered filters by enforcing strict Top or Left boundary zones.
     * **Accessibility & Clarity:** Checks standard charts (Bar, Line, Pie, etc.) to ensure titles are explicitly enabled in the visual formatting.
     """)
-    st.info("Important: You can edit the checklist according to your convenience and what you want to check (as in pixels or yes/no).")
+    st.info("💡 **Important:** You can edit the checklist according to your convenience and what you want to check (as in pixels or yes/no).")
 
 st.download_button(
-    label="Download Dynamic Rule Template (Excel)",
+    label="📥 Download Dynamic Rule Template (Excel)",
     data=create_template(),
     file_name="Dynamic_Rules_Template.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -94,7 +94,7 @@ st.download_button(
 st.write("") 
 
 # ==========================================
-# UPLOADER COLUMNS
+# 📤 UPLOADER COLUMNS
 # ==========================================
 col1, col2 = st.columns(2)
 with col1:
@@ -105,25 +105,25 @@ with col2:
 st.divider()
 
 # ==========================================
-# CORE ENGINE
+# ⚙️ CORE ENGINE
 # ==========================================
 if uploaded_files:
-    if st.button("Run Dynamic Batch Audit", type="primary", use_container_width=True):
+    if st.button("⚡ Run Dynamic Batch Audit", type="primary", use_container_width=True):
         
         # --- 1. LOAD DYNAMIC RULES ---
         if rules_file is not None:
             try:
                 df_rules = pd.read_excel(rules_file)
-                st.success(f"Loaded {len(df_rules)} dynamic rules from matrix!")
+                st.success(f"✅ Loaded {len(df_rules)} dynamic rules from matrix!")
             except Exception as e:
-                st.error(f"Failed to load rules: {e}")
+                st.error(f"❌ Failed to load rules: {e}")
                 st.stop()
         else:
-            st.warning("Please upload a Rules Matrix Excel file to use the Dynamic Engine.")
+            st.warning("⚠️ Please upload a Rules Matrix Excel file to use the Dynamic Engine.")
             st.stop()
 
         # --- 2. RUN AUDIT ---
-        st.info(f"Processing {len(uploaded_files)} files against {len(df_rules)} dynamic rules...")
+        st.info(f"🚀 Processing {len(uploaded_files)} files against {len(df_rules)} dynamic rules...")
         output = BytesIO()
         
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
@@ -203,9 +203,9 @@ if uploaded_files:
                             if stats["evaluated"] == 0:
                                 row_data[rule_name] = "➖ N/A (Visual Not Found)"
                             elif stats["failed"] == 0:
-                                row_data[rule_name] = "Pass"
+                                row_data[rule_name] = "✅ Pass"
                             else:
-                                row_data[rule_name] = f"Fail ({stats['failed']} violations)"
+                                row_data[rule_name] = f"❌ Fail ({stats['failed']} violations)"
                                 
                         dashboard_results.append(row_data)
 
@@ -216,12 +216,12 @@ if uploaded_files:
                         df.to_excel(writer, sheet_name=safe_sheet_name, index=False)
 
                 except Exception as e:
-                    st.error(f"Could not process {dashboard_name}: {e}")
+                    st.error(f"❌ Could not process {dashboard_name}: {e}")
 
-        st.success("Dynamic Batch Audit Complete!")
+        st.success("🎉 Dynamic Batch Audit Complete!")
         output.seek(0)
         st.download_button(
-            label="Download Custom Governance Audit Report",
+            label="📥 Download Custom Governance Audit Report",
             data=output,
             file_name="Dynamic_Governance_Audit.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
