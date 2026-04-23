@@ -43,32 +43,56 @@ st.markdown("Ensure your enterprise dashboards are clean, consistent, and strict
 st.divider()
 
 # ==========================================
-# 📖 2. NEW UI: HOW IT WORKS (COLLAPSIBLE)
+# # ==========================================
+# 📖 2. NEW UI: DOCUMENTATION (COLLAPSIBLE SECTIONS)
 # ==========================================
-with st.expander("📖 **How to use this tool & What we check**", expanded=False):
-    st.markdown("""
-    ### 🛠️ How it works:
-    1. **Download the Template:** Click the button below to get the standard Excel rulebook.
-    2. **Tweak the Rules:** Change the pixel limits or "Yes/No" rules to fit your department.
-    3. **Upload:** Drop your modified Excel file in **Box 1**, and drop your `.pbix` dashboards into **Box 2**.
-    4. **Audit:** We unzip the files securely in memory and check every visual against your rules.
-    
-    ### 🔍 What we are auditing:
-    * **Brand Compliance:** Is your logo in the exact top-left corner?
-    * **Navigation:** Are buttons/shapes placed at the top for standard navigation?
-    * **Filter Zones:** Are slicers floating randomly, or are they anchored Top/Left?
-    * **Accessibility:** Do all major charts have standard titles enabled?
-    """)
-    st.info("💡 *Security Note: Your .pbix files are processed in server memory and instantly deleted. No data is stored.*")
+st.markdown("### 📚 Project Documentation")
 
-# --- TEMPLATE DOWNLOAD ---
-st.download_button(
-    label="📥 Download Blank Rule Template (Excel)",
-    data=create_template(),
-    file_name="Governance_Rules_Template.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)
-st.write("") # Adds a little blank space
+with st.expander("📝 **Overview**", expanded=False):
+    st.markdown("""
+    The Dynamic Power BI Governance Audit Tool is an automated compliance engine designed to enforce design standards and best practices across Power BI dashboards.
+    
+    Auditing Power BI reports for structural consistency (like checking if logos are in the right place, slicers are aligned, or visuals have titles) required manually opening every single `.pbix` file. This tool automates that entire process. By extracting and scanning the underlying JSON metadata of `.pbix` files, it performs batch quality-assurance checks in seconds and generates a detailed compliance report.
+    """)
+
+with st.expander("✨ **Key Features**", expanded=False):
+    st.markdown("""
+    * **In-Memory Batch Processing:** Upload multiple `.pbix` files at once. The tool processes them securely in memory without needing to open Power BI Desktop or save your proprietary data to a server.
+    * **Dynamic Rule Configuration:** Governance isn't one-size-fits-all. The tool allows administrators to download a rule template, customize the pixel boundaries for layout rules, and upload it back to dynamically drive the audit.
+    * **Deep Metadata Parsing:** Treats `.pbix` files as zip archives to crack open the hidden `Report/Layout` structure, scanning exact X/Y coordinates and visual configurations.
+    * **Automated Excel Reporting:** Outputs a clean, multi-tab Excel file detailing the exact pass/fail status of every visual and page across all audited dashboards.
+    """)
+
+with st.expander("🛠️ **How It Works (The Architecture)**", expanded=False):
+    st.markdown("""
+    Under the hood, this tool leverages Python, Pandas, and Streamlit.
+    
+    Power BI `.pbix` files are essentially zipped directories. The engine bypasses the Power BI application entirely by unzipping the `.pbix` file in memory and locating the `Report/Layout` file. Because this file is encoded in `UTF-16 LE`, the script decodes it into a readable JSON format.
+    
+    Once the JSON tree is exposed, the engine iterates through every section (page) and visualContainer (chart/slicer/shape), extracting the config string to map coordinates (`x`, `y`) and visual types against the active governance checklist.
+    """)
+
+with st.expander("🚀 **How to Use the Portal**", expanded=False):
+    st.markdown("""
+    1. **Download the Template:** Click the "Download Blank Rule Template" button below to get the standard governance checklist.
+    2. **Customize the Rules:** Open the downloaded Excel file and adjust the parameters (e.g., changing the maximum allowed X-coordinate for a company logo).
+    3. **Upload the Assets:** * Upload your customized Excel checklist into Box 1.
+       * Upload one or more `.pbix` files into Box 2.
+    4. **Run the Audit:** Click the "Run Dynamic Batch Audit" button.
+    5. **Review Results:** Download the generated `Custom_Governance_Audit.xlsx` report to instantly see which dashboards meet company standards and which require redesigns.
+    """)
+
+with st.expander("📋 **Current Audit Capabilities**", expanded=False):
+    st.markdown("""
+    Currently, the engine checks for:
+    * **Logo Placement:** Verifies an image exists within the strictly defined top-left pixel coordinates.
+    * **Navigation Standards:** Ensures action buttons or shapes are utilized in the top navigation zone.
+    * **Slicer Alignment:** Flags scattered filters by enforcing strict Top or Left boundary zones.
+    * **Accessibility & Clarity:** Checks standard charts (Bar, Line, Pie, etc.) to ensure titles are explicitly enabled in the visual formatting.
+    """)
+    st.info("💡 **Important:** You can edit the checklist according to your convenience and what you want to check (as in pixels or yes/no).")
+
+st.write("") # Adds a little blank space before the download button
 
 # ==========================================
 # 📤 3. NEW UI: CLEANER UPLOAD COLUMNS
