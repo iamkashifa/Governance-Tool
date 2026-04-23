@@ -14,7 +14,6 @@ def get_color_for_element(config_string, keyword):
     match = re.search(r'#[0-9a-fA-F]{6}', chunk)
     return match.group(0).upper() if match else "Default/None"
 
-# Creates a downloadable Excel template for users
 def create_template():
     df = pd.DataFrame({
         "Rule Description": [
@@ -31,9 +30,36 @@ def create_template():
         df.to_excel(writer, index=False, sheet_name="Governance Rules")
     return output.getvalue()
 
-st.set_page_config(page_title="PBI Governance Tool", layout="wide")
-st.title("Dynamic Power BI Governance Audit")
-st.write("Upload your simple Excel checklist and your `.pbix` files to run a custom audit.")
+# ==========================================
+# 🎨 1. NEW UI: HERO SECTION & PAGE CONFIG
+# ==========================================
+st.set_page_config(page_title="PBI Governance Tool", page_icon="📊", layout="wide")
+
+# Optional: If you want an actual image (like a logo or diagram), put the file in your VS code folder and uncomment the line below:
+# st.image("your_image_name.png", width=200)
+
+st.title("📊 Dynamic Power BI Governance Audit")
+st.markdown("Ensure your enterprise dashboards are clean, consistent, and strictly follow UI/UX brand guidelines—**in seconds, without opening Power BI Desktop.**")
+st.divider()
+
+# ==========================================
+# 📖 2. NEW UI: HOW IT WORKS (COLLAPSIBLE)
+# ==========================================
+with st.expander("📖 **How to use this tool & What we check**", expanded=False):
+    st.markdown("""
+    ### 🛠️ How it works:
+    1. **Download the Template:** Click the button below to get the standard Excel rulebook.
+    2. **Tweak the Rules:** Change the pixel limits or "Yes/No" rules to fit your department.
+    3. **Upload:** Drop your modified Excel file in **Box 1**, and drop your `.pbix` dashboards into **Box 2**.
+    4. **Audit:** We unzip the files securely in memory and check every visual against your rules.
+    
+    ### 🔍 What we are auditing:
+    * **Brand Compliance:** Is your logo in the exact top-left corner?
+    * **Navigation:** Are buttons/shapes placed at the top for standard navigation?
+    * **Filter Zones:** Are slicers floating randomly, or are they anchored Top/Left?
+    * **Accessibility:** Do all major charts have standard titles enabled?
+    """)
+    st.info("💡 *Security Note: Your .pbix files are processed in server memory and instantly deleted. No data is stored.*")
 
 # --- TEMPLATE DOWNLOAD ---
 st.download_button(
@@ -42,16 +68,23 @@ st.download_button(
     file_name="Governance_Rules_Template.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
-st.divider()
+st.write("") # Adds a little blank space
 
-# --- 1. UPLOAD BOXES ---
+# ==========================================
+# 📤 3. NEW UI: CLEANER UPLOAD COLUMNS
+# ==========================================
+st.markdown("### 🚀 Start Your Audit")
 col1, col2 = st.columns(2)
-with col1:
-    rules_file = st.file_uploader("1. Upload Governance Checklist (Excel/CSV)", type=["xlsx", "csv"])
-with col2:
-    uploaded_files = st.file_uploader("2. Upload .pbix files or Folder", type="pbix", accept_multiple_files=True)
 
-# --- 2. DEFAULT RULES ---
+with col1:
+    st.markdown("#### Step 1: The Rules")
+    rules_file = st.file_uploader("Upload Governance Checklist (Excel)", type=["xlsx", "csv"])
+
+with col2:
+    st.markdown("#### Step 2: The Dashboards")
+    uploaded_files = st.file_uploader("Upload .pbix files or Folder", type="pbix", accept_multiple_files=True)
+
+# --- DEFAULT RULES ---
 active_rules = {
     "logo_max_x": 100,
     "logo_max_y": 100,
@@ -60,28 +93,30 @@ active_rules = {
     "require_visual_titles": True
 }
 
+st.divider()
+
+# ==========================================
+# ⚙️ 4. CORE ENGINE (Unchanged)
+# ==========================================
 if uploaded_files:
-    if st.button("Run Dynamic Batch Audit"):
+    # Made the button more prominent
+    if st.button("⚡ Run Dynamic Batch Audit", type="primary", use_container_width=True):
         
-        # --- 3. AUTO-CONVERT EXCEL TO JSON/DICT ---
+        # --- AUTO-CONVERT EXCEL TO JSON/DICT ---
         if rules_file is not None:
             try:
-                # Read the simple language file
                 if rules_file.name.endswith('.csv'):
                     df_rules = pd.read_csv(rules_file)
                 else:
                     df_rules = pd.read_excel(rules_file)
                 
-                # Convert the two columns into a dictionary
                 user_rules = dict(zip(df_rules.iloc[:, 0].str.strip(), df_rules.iloc[:, 1]))
                 
-                # Map simple language to code logic
                 active_rules["logo_max_x"] = int(user_rules.get("Logo Max X Position (Pixels)", 100))
                 active_rules["logo_max_y"] = int(user_rules.get("Logo Max Y Position (Pixels)", 100))
                 active_rules["slicer_max_x_for_left"] = int(user_rules.get("Slicer Max X Position (Left Zone)", 150))
                 active_rules["slicer_max_y_for_top"] = int(user_rules.get("Slicer Max Y Position (Top Zone)", 150))
                 
-                # Convert "Yes"/"True" text into boolean
                 title_val = str(user_rules.get("Require Titles on Charts (Yes/No)", "Yes")).strip().lower()
                 active_rules["require_visual_titles"] = title_val in ['yes', 'true', '1', 'y']
                 
@@ -91,7 +126,7 @@ if uploaded_files:
         else:
             st.warning("No custom checklist uploaded. Using standard strict rules.")
 
-        # --- 4. RUN AUDIT WITH ACTIVE RULES ---
+        # --- RUN AUDIT WITH ACTIVE RULES ---
         st.info(f"Processing {len(uploaded_files)} files...")
         output = BytesIO()
         
