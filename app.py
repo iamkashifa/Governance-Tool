@@ -52,7 +52,7 @@ with st.expander("**Key Features**", expanded=False):
     * **Automated Excel Reporting:** Outputs a clean, multi-tab Excel file detailing the exact pass/fail status of every visual, where each tab corresponds to a specific audited dashboard.
     """)
 
-with st.expander("**How It Works (The Architecture)**", expanded=False):
+with st.expander("**How It Works**", expanded=False):
     st.markdown("""
     This tool leverages Python, Pandas, and Streamlit in the backend.
     
