@@ -30,82 +30,30 @@ st.set_page_config(page_title="PBI Governance Engine", page_icon="⚙️", layou
 
 st.title("⚙️ Dynamic Power BI Rule Engine")
 st.markdown("Upload your custom rules matrix and your `.pbix` files. The engine will dynamically adapt to whatever rules you set.")
-st.divider()
 
-# ==========================================
-# 📚 DOCUMENTATION (COLLAPSIBLE SECTIONS)
-# ==========================================
-st.markdown("### 📚 Project Documentation")
-
-with st.expander("**Overview**", expanded=False):
-    st.markdown("""
-    The Dynamic Power BI Governance Audit Tool is an automated compliance engine designed to enforce design standards and best practices across Power BI dashboards.
-    
-    Auditing Power BI reports for structural consistency (such as checking if logos are in the right place, slicers are aligned, or visuals have titles) previously required manually opening every single `.pbix` file, which is a highly tedious process. This tool automates that entire workflow. By extracting and scanning the underlying JSON metadata of `.pbix` files, it performs batch quality-assurance checks in seconds and generates a detailed compliance report.
-    """)
-
-with st.expander("**Key Features**", expanded=False):
-    st.markdown("""
-    * **In-Memory Batch Processing:** Upload multiple `.pbix` files at once. The tool processes them securely in memory.
-    * **Dynamic Rule Configuration:** Download a rule template, add custom rules, adjust pixel boundaries for layout configurations to suit your needs, and upload it back to dynamically drive the audit.
-    * **Deep Metadata Parsing:** Treats `.pbix` files as zip archives to unlock the hidden `Report/Layout` structure, scanning exact X/Y coordinates and visual configurations.
-    * **Automated Excel Reporting:** Outputs a clean, multi-tab Excel file detailing the exact pass/fail status of every visual, where each tab corresponds to a specific audited dashboard.
-    """)
-
-with st.expander("**How It Works**", expanded=False):
-    st.markdown("""
-    This tool leverages Python, Pandas, and Streamlit in the backend.
-    
-    Power BI `.pbix` files are essentially zipped directories. The engine bypasses the Power BI application entirely by unzipping the `.pbix` file in memory and locating the `Report/Layout` file. Because this file is encoded in UTF-16 LE, the script decodes it into a readable JSON format.
-    
-    Once the JSON tree is exposed, the engine iterates through every section (page) and visualContainer (chart/slicer/shape). It extracts the configuration string to map coordinates (x, y) and visual types against the active governance checklist.
-    """)
-
-with st.expander("**How to Use the Tool**", expanded=False):
-    st.markdown("""
-    1. **Download the Template:** Click the "Download Dynamic Rule Template" button to get the standard governance matrix.
-    2. **Customize the Rules:** Open the downloaded Excel file. Instead of hardcoding rules, this app reads your Excel file row by row.
-       * **Target Visual:** Which visual type does this rule apply to? (e.g., `image`, `slicer`, `barChart`, or `all`)
-       * **Property to Check:** What are we measuring? (Currently supports: `x_position`, `y_position`, `title_exists`)
-       * **Condition:** `Less Than`, `Greater Than`, or `Equals`
-    3. **Upload the Assets:** * Upload your customized Excel checklist into Box 1.
-       * Upload one or more `.pbix` files into Box 2.
-    4. **Run the Audit:** Click "Run Dynamic Batch Audit."
-    5. **Review Results:** Download the generated `Dynamic_Governance_Audit.xlsx` report to instantly see which dashboards meet company standards.
-    """)
-
-with st.expander("**Sample Results of the Existing Checklist**", expanded=False):
-    st.markdown("""
-    The engine checks for:
-    
-    * **Logo Placement:** Verifies that an image exists within the strictly defined top-left pixel coordinates.
-    * **Navigation Standards:** Ensures action buttons or shapes are utilized in the top navigation zone.
-    * **Slicer Alignment:** Flags scattered filters by enforcing strict Top or Left boundary zones.
-    * **Accessibility & Clarity:** Checks standard charts (Bar, Line, Pie, etc.) to ensure titles are explicitly enabled in the visual formatting.
-    """)
-    st.info("💡 **Important:** You can edit the checklist according to your convenience and what you want to check (as in pixels or yes/no).")
-
+# Place the template download right at the top so it's easy to grab
 st.download_button(
     label="📥 Download Dynamic Rule Template (Excel)",
     data=create_template(),
     file_name="Dynamic_Rules_Template.xlsx",
     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
-st.write("") 
+st.divider()
 
 # ==========================================
-# 📤 UPLOADER COLUMNS
+# 📤 1. UPLOADER COLUMNS (Action First)
 # ==========================================
+st.markdown("### 🚀 Start Your Audit")
 col1, col2 = st.columns(2)
 with col1:
     rules_file = st.file_uploader("1. Upload Rules Matrix (Excel)", type=["xlsx"])
 with col2:
     uploaded_files = st.file_uploader("2. Upload .pbix files or Folder", type="pbix", accept_multiple_files=True)
 
-st.divider()
+st.write("") # Small spacing
 
 # ==========================================
-# ⚙️ CORE ENGINE
+# ⚙️ 2. CORE ENGINE (Runs right below uploaders)
 # ==========================================
 if uploaded_files:
     if st.button("⚡ Run Dynamic Batch Audit", type="primary", use_container_width=True):
@@ -144,7 +92,6 @@ if uploaded_files:
                         visuals = page.get('visualContainers', [])
                         
                         # Set up rule trackers for this specific page
-                        # Tracks: {"Rule Name": {"evaluated": 0, "failed": 0}}
                         page_rule_stats = {row['Rule Name']: {"evaluated": 0, "failed": 0} for _, row in df_rules.iterrows()}
                         
                         for visual in visuals:
@@ -188,7 +135,7 @@ if uploaded_files:
                                             elif cond == 'Equals':
                                                 passed = str(actual_val).lower() == target_val
                                         except:
-                                            passed = False # Math failed, mark as violation
+                                            passed = False 
                                             
                                         if not passed:
                                             page_rule_stats[rule_name]["failed"] += 1
@@ -226,3 +173,58 @@ if uploaded_files:
             file_name="Dynamic_Governance_Audit.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
+
+st.divider()
+
+# ==========================================
+# 📚 3. DOCUMENTATION (Moved to the bottom)
+# ==========================================
+st.markdown("### 📚 Project Documentation")
+
+with st.expander("**Overview**", expanded=False):
+    st.markdown("""
+    The Dynamic Power BI Governance Audit Tool is an automated compliance engine designed to enforce design standards and best practices across Power BI dashboards.
+    
+    Auditing Power BI reports for structural consistency (such as checking if logos are in the right place, slicers are aligned, or visuals have titles) previously required manually opening every single `.pbix` file, which is a highly tedious process. This tool automates that entire workflow. By extracting and scanning the underlying JSON metadata of `.pbix` files, it performs batch quality-assurance checks in seconds and generates a detailed compliance report.
+    """)
+
+with st.expander("**Key Features**", expanded=False):
+    st.markdown("""
+    * **In-Memory Batch Processing:** Upload multiple `.pbix` files at once. The tool processes them securely in memory.
+    * **Dynamic Rule Configuration:** Download a rule template, add custom rules, adjust pixel boundaries for layout configurations to suit your needs, and upload it back to dynamically drive the audit.
+    * **Deep Metadata Parsing:** Treats `.pbix` files as zip archives to unlock the hidden `Report/Layout` structure, scanning exact X/Y coordinates and visual configurations.
+    * **Automated Excel Reporting:** Outputs a clean, multi-tab Excel file detailing the exact pass/fail status of every visual, where each tab corresponds to a specific audited dashboard.
+    """)
+
+with st.expander("**How It Works (The Architecture)**", expanded=False):
+    st.markdown("""
+    This tool leverages Python, Pandas, and Streamlit in the backend.
+    
+    Power BI `.pbix` files are essentially zipped directories. The engine bypasses the Power BI application entirely by unzipping the `.pbix` file in memory and locating the `Report/Layout` file. Because this file is encoded in UTF-16 LE, the script decodes it into a readable JSON format.
+    
+    Once the JSON tree is exposed, the engine iterates through every section (page) and visualContainer (chart/slicer/shape). It extracts the configuration string to map coordinates (x, y) and visual types against the active governance checklist.
+    """)
+
+with st.expander("**How to Use the Tool**", expanded=False):
+    st.markdown("""
+    1. **Download the Template:** Click the "Download Dynamic Rule Template" button at the top of the page to get the standard governance matrix.
+    2. **Customize the Rules:** Open the downloaded Excel file. Instead of hardcoding rules, this app reads your Excel file row by row.
+       * **Target Visual:** Which visual type does this rule apply to? (e.g., `image`, `slicer`, `barChart`, or `all`)
+       * **Property to Check:** What are we measuring? (Currently supports: `x_position`, `y_position`, `title_exists`)
+       * **Condition:** `Less Than`, `Greater Than`, or `Equals`
+    3. **Upload the Assets:** * Upload your customized Excel checklist into Box 1.
+       * Upload one or more `.pbix` files into Box 2.
+    4. **Run the Audit:** Click "Run Dynamic Batch Audit."
+    5. **Review Results:** Download the generated `Dynamic_Governance_Audit.xlsx` report to instantly see which dashboards meet company standards.
+    """)
+
+with st.expander("**Sample Results of the Existing Checklist**", expanded=False):
+    st.markdown("""
+    The engine checks for:
+    
+    * **Logo Placement:** Verifies that an image exists within the strictly defined top-left pixel coordinates.
+    * **Navigation Standards:** Ensures action buttons or shapes are utilized in the top navigation zone.
+    * **Slicer Alignment:** Flags scattered filters by enforcing strict Top or Left boundary zones.
+    * **Accessibility & Clarity:** Checks standard charts (Bar, Line, Pie, etc.) to ensure titles are explicitly enabled in the visual formatting.
+    """)
+    st.info("💡 **Important:** You can edit the checklist according to your convenience and what you want to check (as in pixels or yes/no).")
